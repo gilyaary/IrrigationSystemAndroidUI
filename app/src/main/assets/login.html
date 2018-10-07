@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/jquery-clockpicker.min.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-clockpicker.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-cookies.js"></script>
+
+
+    <script>
+   
+   //var host = "http://192.168.1.38";
+   var host = "";   
+   function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+    
+   var app = angular.module('myApp', []);
+   /*
+    app.controller('loginController', function($scope, $http) {
+        //alert('HI');
+        //var scheduleId = getUrlParameter('scheduleId');
+        
+        $scope.doLogin = function(){
+            alert("Logging In With Username: " + $scope.login.username + ", Password: " + $scope.login.password);
+            var url2 = host + "/api/login" ; 
+            $http.post(url2, $scope.login)
+            .then(function (respose) {
+                //window.location = "all_schedules.html";     
+            });   
+        }
+        
+    });
+   */
+  
+   $(document).ready(function(){
+        initUI();
+   });
+   
+   function initUI(){
+   
+   }
+</script>
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=password], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.days {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+.mon,.wed{
+    padding: 10px 9px 10px 9px;
+}
+.thu{
+    padding: 10px 8px 10px 8px;
+}
+.tue,.fri, .sat, .sun{
+    padding: 10px 11px 10px 11px;
+}
+.right_align{
+    float: right;
+}
+
+.card_container {    
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2; 
+    border-width: 0px;
+    font-size: 15px;
+}
+.card_header{
+    background-color:#aaa;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+
+.zones {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px; 
+    margin: 5px 0px 5px 0px; 
+}
+
+</style>
+
+
+</head>
+<body>
+    
+    
+    
+ <div ng-app="myApp" ng-controller="loginController" class="card_container">
+     
+<h3 class="card_header">Login</h3>
+<div class="card_body">
+    <form action="/login" method="POST">
+        <label for="scheduleName">Username</label>
+        <input type="text" id="username" name="username" placeholder="Username.." ng-model="login.username">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Password.." ng-model="login.password">
+
+        <div class="button_group">
+            <input type="submit" value="Save" id="save_button" ng-click="doLogin()">
+            <input type="submit" class="right_align" value="Cancel">
+        </div>
+    </form>
+</div>
+</div>
+</body>
+
+</html>

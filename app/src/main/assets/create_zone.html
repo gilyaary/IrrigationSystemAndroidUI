@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="css/jquery-clockpicker.min.css"/>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery-clockpicker.min.js"></script>
+        <script src="js/angular.min.js"></script>
+        <script src="js/angular-cookies.js"></script>
+
+
+
+        <style>
+            body {font-family: Arial, Helvetica, sans-serif;}
+
+            input[type=text], select, textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+                margin-top: 6px;
+                margin-bottom: 16px;
+                resize: vertical;
+            }
+            input[type=number] {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+                margin-top: 6px;
+                margin-bottom: 16px;
+                resize: vertical;
+            }
+
+            input[type=submit] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            input[type=submit]:hover {
+                background-color: #45a049;
+            }
+
+            .schedules {
+                color: white;
+                /*    border-style: solid;
+                    border-width: 1px;*/
+                border-radius: 10px;
+                cursor: pointer;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-right: 10px;
+                padding-left: 10px; 
+                margin: 5px 0px 5px 0px; 
+            }
+            .off {
+                background-color: #CCCCCC;
+            }
+            .on {
+                background-color: #99101b;
+            }
+
+
+            .card_container {    
+                border-style:solid;
+                border-radius:15px;
+                border-color:black;
+                background-color: #f2f2f2; 
+                border-width: 0px;
+                font-size: 15px;
+            }
+            .card_header{
+                background-color:#aaa;
+                color: white;
+                text-align: center;
+                padding-top: 10px;
+                padding-bottom: 20px;
+                margin-top: 0px;
+                border-top-right-radius: 15px;
+                border-top-left-radius: 15px;
+                border-bottom-right-radius: 0px;
+                border-bottom-left-radius: 0px;
+                /*
+                border-style:solid;
+                border-radius:15px;
+                border-color:black;
+                */
+            }
+            .card_body {
+                /*
+                border-style:solid;
+                border-radius:15px;
+                border-color:black;
+                background-color: #f2f2f2;
+                */
+
+                padding: 20px;
+            }
+
+            .button_group{
+                margin-top: 25px;
+            }
+            label{
+                margin-bottom: 10px;
+            }
+            input[type=button] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-bottom: 15px;
+            }
+
+
+        </style>
+
+
+        <script language="javascript">
+            function toggleButton(ev) {
+                var src = ev.target;
+                if ($(src).hasClass('off')) {
+                    $(src).removeClass('off');
+                    $(src).addClass('on');
+                } else {
+                    $(src).removeClass('on');
+                    $(src).addClass('off');
+                }
+            }
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+            
+            var app = angular.module('myApp', ['ngCookies']);
+            app.controller('createZoneController', function ($scope, $http, $cookies) {
+                $scope.sessionCookie = $cookies.get("ESPSESSIONID");
+                //These are global should not be here ...
+                $scope.createSchedule = function () {
+                    window.location = "create_schedule.html?scheduleId=-1";
+                }
+                $scope.viewSchedules = function () {
+                    window.location = "all_schedules.html";
+                }
+                $scope.viewZones = function () {
+                    window.location = "all_zones.html";
+                }
+                $scope.viewStatus = function () {
+                    window.location = "status.html";
+                }
+                $scope.saveZone = function () {
+                    //window.location = "create_zone.html?zoneId=" + zoneId;
+                    var url = "/api/zones"  + "?ESPSESSIONID=" + $scope.sessionCookie;                    
+                    $http.put(url, $scope.zones, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+                    .then(function (respose) {
+                        window.location = "all_zones.html";   
+                    });
+                }
+                
+                var zoneId = getUrlParameter('zoneId');
+                var url = "/api/zones"  + "?ESPSESSIONID=" + $scope.sessionCookie;
+                $http.get(url)
+                        .then(function (response) {
+                            $scope.zones = response.data;
+                            for(var i=0; i<$scope.zones.length; i++){
+                                if($scope.zones[i].id == zoneId){
+                                    $scope.zone = $scope.zones[i];
+                                }
+                            }
+                        });
+            });
+
+            $(document).ready(function () {
+                $('.schedules').click(toggleButton);
+            });
+        </script>
+    </head>
+    <body>
+        <div ng-app="myApp" ng-controller="createZoneController" class="info_card_container">
+            <div class="button_group">
+                <input type="button" value="Create Schedule" ng-click="createSchedule()">            
+                <input type="button" value="View Schedules" ng-click="viewSchedules()">           
+                <input type="button" value="View Zones" ng-click="viewZones()">
+                <input type="button" value="Zone Status" ng-click="viewStatus()">
+            </div>
+            <div class="card_container">
+                <h3 class="card_header">Zone Update</h3>
+                <div class="card_body">
+                    <form action="/action_page.php">
+                        <label for="scheduleName">Zone Name</label>
+                        <input type="text" id="name" name="name" ng-model="zone.name" placeholder="Zone name..">
+                        <label for="zoneNumber">Zone Number: {{zone.id}}</label>
+                        <!--    
+                            <select>
+                                <option value="1">Zone 1</option>
+                                <option value="1">Zone 2</option>
+                                <option value="1">Zone 3</option>
+                                <option value="1">Zone 4</option>
+                                <option value="1">Zone 5</option>
+                                <option value="1">Zone 6</option>
+                                <option value="1">Zone 7</option>
+                                <option value="1">Zone 8</option>
+                            </select>
+                        
+                            <label for="schedule">Schedules</label>
+                            <div>
+                                <p class="schedules off">Morning Schedule</p>
+                                <p class="schedules off">Afternoon Schedule</p>
+                                <p class="schedules off">Evening Schedule</p>
+                            </div>  
+                        -->
+                        <div class="button_group">
+                            <input type="button" value="Save" ng-click="saveZone()">
+                            <input type="button" class="right_align" value="Cancel">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+
+
+
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/jquery-clockpicker.min.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-clockpicker.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-cookies.js"></script>
+
+    <script>
+    var app = angular.module('myApp', ['ngCookies']);
+    app.controller('zoneStatusController', function($scope, $http, $timeout, $cookies) {
+        $scope.createSchedule = function () {
+            window.location = "create_schedule.html?scheduleId=-1";
+        }
+        $scope.viewSchedules = function () {
+            window.location = "all_schedules.html";
+        }
+        $scope.viewZones = function () {
+            window.location = "all_zones.html";
+        }
+        $scope.viewStatus = function () {
+            window.location = "status.html";
+        }
+        //$('.zones').click(toggleZoneStatus);
+        $scope.sessionCookie = $cookies.get("ESPSESSIONID");
+        
+        $http.get("/api/zones" + "?ESPSESSIONID=" + $scope.sessionCookie)
+        .then(function(response) {
+            $scope.zones = response.data;    
+        });
+        
+        
+        var showZoneStatus = function(){
+            //alert("Calling show zone Status");
+            $http.get("status?ESPSESSIONID=" + $scope.sessionCookie)
+            .then(function(response) {
+                //$scope.schedules = response.data;
+                var zoneStatuses = response.data.outputs;
+                for(var i=0; i<zoneStatuses.length; i++){
+                    var zone = $(".zones")[i];
+                    if(zoneStatuses[i] == 1){
+                        $(zone).removeClass('off');
+                        $(zone).addClass('on');                        
+                    }  
+                    else{                        
+                        $(zone).removeClass('on');
+                        $(zone).addClass('off');
+                    }
+                }
+                $scope.wifiStatus = response.data.wifiStatus;
+                //alert(response.data[0]);
+            });
+            
+            $http.get("time"  + "?ESPSESSIONID=" + $scope.sessionCookie)
+            .then(function(response) {
+                 $scope.time=response.data;                  
+                 $timeout( showZoneStatus, 1000 );
+            });
+            
+        }
+        showZoneStatus();
+        
+        $scope.toggleZoneStatus = function($event, zoneId){
+
+            var src = $event.target;
+            console.log('toggle');
+            var url = "/api/programOverwrite/" + zoneId;                    
+
+            if($(src).hasClass('off')){
+                $(src).removeClass('off');
+                //$(src).addClass('on');
+                //now make a call to set to ON           
+                var zoneOverride = {
+                    "active":1, 
+                    "duration":5
+                };
+                $http.put(url + "?ESPSESSIONID=" + $scope.sessionCookie, zoneOverride, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+                .then(function (respose) {
+                    //window.location = "all_zones.html";   
+                });
+            }
+            else{
+                $(src).removeClass('on');
+                //$(src).addClass('off');
+                //now make a call to set to OFF
+                var zoneOverride = {
+                    "active":0, 
+                    "duration":5
+                };
+                $http.put(url + "?ESPSESSIONID=" + $scope.sessionCookie, zoneOverride, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+                .then(function (respose) {
+                    //window.location = "all_zones.html";   
+                });
+            }
+        }    
+        
+    });
+     
+       
+   
+   $(document).ready(function(){
+        initUI();
+   });
+   
+   function initUI(){
+       
+   }
+    
+   
+</script>
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.days {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+.mon,.wed{
+    padding: 10px 9px 10px 9px;
+}
+.thu{
+    padding: 10px 8px 10px 8px;
+}
+.tue,.fri, .sat, .sun{
+    padding: 10px 11px 10px 11px;
+}
+.right_align{
+    float: right;
+}
+
+.card_container {    
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2; 
+    border-width: 0px;
+    font-size: 15px;
+}
+.card_header{
+    background-color:#aaa;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+
+.zones {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px; 
+    margin: 5px 0px 5px 0px; 
+}
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+input[type=button] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+</style>
+
+
+</head>
+<body>
+    
+    
+    
+<div ng-app="myApp" ng-controller="zoneStatusController" class="card_container">
+<div class="button_group">
+    <input type="button" value="Create Schedule" ng-click="createSchedule()">            
+    <input type="button" value="View Schedules" ng-click="viewSchedules()">           
+    <input type="button" value="View Zones" ng-click="viewZones()">
+    <input type="button" value="Zone Status" ng-click="viewStatus()">
+</div>    
+     
+<h3 class="card_header">Zone Status</h3>
+<div class="card_body"> 
+  
+  <div style="margin-top:20px;">{{time}}</div>
+  <div style="margin-top:20px;">WiFi Status: {{wifiStatus}}</div>  
+  
+  <div style="margin-top:20px;">Zones</div>
+    <div>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 0)">{{zones[0].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 1)">{{zones[1].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 2)">{{zones[2].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 3)">{{zones[3].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 4)">{{zones[4].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 5)">{{zones[5].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 6)">{{zones[6].name}}</p>
+        <p class="zones off" ng-click="toggleZoneStatus($event, 7)">{{zones[7].name}}</p>
+    </div> 
+</div>
+</div>
+</body>
+
+
+
+</html>

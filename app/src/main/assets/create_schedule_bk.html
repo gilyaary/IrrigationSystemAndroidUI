@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.css"/>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+
+<script>
+   
+   
+   var app = angular.module('myApp', []);
+   app.controller('createScheduleController', function($scope, $http) {
+        //alert('HI');
+        //initUI();
+        $scope.name = "GIL";
+
+    });
+   
+   
+    function toggleButton(ev){
+       console.log('toggle');
+       var src = ev.target;
+       if($(src).hasClass('off')){
+           $(src).removeClass('off');
+           $(src).addClass('on');
+       }
+       else{
+           $(src).removeClass('on');
+           $(src).addClass('off');
+       }
+   }   
+   
+   $(document).ready(function(){
+        
+        initUI();
+        
+        
+   });
+   
+   
+   
+   function initUI(){
+       //TODO: populate the page if there is an ID in the URL
+       //var urlSegments = document.URL.split('/');
+       //alert(urlSegments.length);
+       
+       
+       $('.days').click(toggleButton);
+       $('.clockpicker').clockpicker({
+            placement: 'bottom',
+            align: 'right',
+            //autoclose: true, 
+            donetext: 'Done'
+       });
+       
+       $("#save_button").click(function(){
+            var scheduleData = {
+                "id":"1",
+                "name":"EveningXX",
+                "startTime":"7:15",
+                "duration":"5",
+                "days":[0,1,2,3,4,5],
+                "outputs":[0,1],
+                "daysStatus":[true,true,true,true,true,true,false],
+                "outputsStatus":[true,true,false,false,false,false,false,false]
+            };
+            //alert(scheduleData);
+
+            var url = "http://localhost:8383/action_page.php";
+//            $.post(url, scheduleData, function(data, status){
+//                //alert("Data: " + data + "\nStatus: " + status);
+//            }, "json");
+            
+            
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify( scheduleData ),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            });
+            
+            
+        });
+       
+   }
+    
+   
+</script>
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.days {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+.mon,.wed{
+    padding: 10px 9px 10px 9px;
+}
+.thu{
+    padding: 10px 8px 10px 8px;
+}
+.tue,.fri, .sat, .sun{
+    padding: 10px 11px 10px 11px;
+}
+.right_align{
+    float: right;
+}
+
+.card_container {    
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2; 
+    border-width: 0px;
+    font-size: 15px;
+}
+.card_header{
+    background-color:#aaa;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+
+</style>
+
+
+</head>
+<body>
+
+    
+    NAME: {{name}}
+    
+<div class="card_container">
+<h3 class="card_header">New Schedules</h3>
+<div class="card_body">
+  <!-- form action="/action_page.php" -->
+    <label for="scheduleName">Schedule Name</label>
+    <input type="text" id="scheduleName" name="scheduleName" placeholder="Schedule name..">
+
+    <label for="startTime">Start Time</label>
+    <div class="input-group clockpicker">
+        <input type="text" class="form-control" value="" readonly>
+        <span class="input-group-addon">
+            <span class="glyphicon glyphicon-time"></span>
+        </span>
+    </div>
+    
+    
+    <label for="duration">Duration</label>
+    <input type="number" id="duration" name="duration" placeholder="Duration..">
+    
+   <div class="button_group">        
+        <botton class="days mon off">M</botton>
+        <botton class="days tue off">T</botton>
+        <botton class="days wed off">W</botton>
+        <botton class="days thu off">Th</botton>
+        <botton class="days fri off">F</botton>
+        <botton class="days sat off">S</botton>
+        <botton class="days sun off">S</botton>
+    </div>
+      
+    <div class="button_group">
+        <input type="submit" value="Save" id="save_button">
+        <input type="submit" class="right_align" value="Cancel">
+    </div>
+  <!-- /form -->
+</div>
+</div>
+</body>
+
+
+
+</html>
+
+<!--
+PUT
+{
+    "id":"1",
+    "name":"EveningXX",
+    "startTime":"7:15",
+    "duration":"5",
+    "days":[0,1,2,3,4,5],
+    "outputs":[0,1],
+    "daysStatus":[true,true,true,true,true,true,false],
+    "outputsStatus":[true,true,false,false,false,false,false,false]
+}
+-->

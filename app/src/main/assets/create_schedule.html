@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="css/jquery-clockpicker.min.css"/>
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-clockpicker.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script src="js/angular-cookies.js"></script>
+
+<script>
+   
+   //var host = "http://192.168.1.38";
+   var host = "";   
+   function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+    
+    function getSchedule($scope,$http, scheduleId){
+        var url = host + "/api/programs/" + scheduleId + "?ESPSESSIONID=" + $scope.sessionCookie;
+        $http.get(url)
+        .then(function(response) {
+            $scope.schedule = response.data;
+            console.log($scope.schedule);
+            
+            for( var i = 0; i<$scope.schedule.days.length; i++){
+                var day = $scope.schedule.days[i];
+                var clazz = '';
+                switch(day){
+                    case "1":
+                        clazz = 'mon';
+                        break;
+                    case "2":
+                        clazz = 'tue';
+                        break;
+                    case "3":
+                        clazz = 'wed';
+                        break;
+                    case "4":
+                        clazz = 'thu';
+                        break;
+                    case "5":
+                        clazz = 'fri';
+                        break;
+                    case "6":
+                        clazz = 'sat';
+                        break;
+                    case "0":
+                        clazz = 'sun';
+                        break;
+                        
+                }
+                $('.' + clazz).removeClass('off');
+                $('.' + clazz).addClass('on');
+                
+            }
+            
+            //$scope.schedule.outputs.push("1");
+            //$scope.schedule.outputs.push("2");
+            
+            for( var i=0; i<8; i++){
+                $($('.zones')[i]).removeClass('on');
+                $($('.zones')[i]).addClass('off');
+            }
+            for( var i = 0; i<$scope.schedule.outputs.length; i++){
+                var zone = $scope.schedule.outputs[i];
+                var zoneIndex = parseInt(zone);
+                $($('.zones')[zoneIndex]).removeClass('off');
+                $($('.zones')[zoneIndex]).addClass('on');                
+            }
+            
+        });
+    }
+   
+   var app = angular.module('myApp', ['ngCookies']);
+   app.controller('createScheduleController', function($scope, $http, $cookies) {
+        
+        $scope.createSchedule = function () {
+            window.location = "create_schedule.html?scheduleId=-1";
+        }
+        $scope.viewSchedules = function () {
+            window.location = "all_schedules.html";
+        }
+        $scope.viewZones = function () {
+            window.location = "all_zones.html";
+        }
+        $scope.viewStatus = function () {
+            window.location = "status.html";
+        }
+        $scope.sessionCookie = $cookies.get("ESPSESSIONID");
+        
+        
+        $http.get("/api/zones" + "?ESPSESSIONID=" + $scope.sessionCookie)
+        .then(function(response) {
+            $scope.zones = response.data;    
+        });
+        
+        
+        //alert('HI');
+        var scheduleId = getUrlParameter('scheduleId');
+        
+        if(scheduleId == "-1"){
+            $scope.schedule = {
+                "outputs":[],
+                "days":[]
+            }
+        }
+        
+        if(scheduleId != -1){
+            getSchedule($scope, $http, scheduleId);
+        }
+        
+        
+        
+        
+        
+        $scope.saveSchedule = function(){
+            //alert("saving schedule " + scheduleId);
+            var url2 = host + "/api/programs/" + scheduleId; 
+            //var url2 = "http://192.168.1.38/api/programs/" + scheduleId; 
+            var days = [];
+            var outputs = [];
+            
+            for( var i=0; i<8; i++){
+                if( $($('.zones')[i]).hasClass('on') ){
+                   outputs.push(i.toString()); 
+                }
+                
+            }
+            $scope.schedule.outputs = outputs;
+            
+            if($('.mon').hasClass('on')){
+                days.push("1");
+            }
+            if($('.tue').hasClass('on')){
+                days.push("2");
+            }
+            if($('.wed').hasClass('on')){
+                days.push("3");
+            }
+            if($('.thu').hasClass('on')){
+                days.push("4");
+            }
+            if($('.fri').hasClass('on')){
+                days.push("5");
+            }
+            if($('.sat').hasClass('on')){
+                days.push("6");
+            }
+            if($('.sun').hasClass('on')){
+                days.push("0");
+            }
+            $scope.schedule.days = days;
+            
+            
+            url2 += "?ESPSESSIONID=" + $scope.sessionCookie;
+        
+        
+            if(scheduleId == "-1"){
+                $http.post(url2, $scope.schedule, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+                .then(function (respose) {
+                    window.location = "all_schedules.html";     
+                });                
+            }
+            else{
+                $http.put(url2, $scope.schedule, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+                .then(function (respose) {
+                    window.location = "all_schedules.html";   
+                }); 
+            }
+        }
+        
+    });
+   
+/*
+    {
+    "id":"1",
+    "name":"Evening Time",
+    "startTime":"7:16",
+    "duration":"5",
+    "days":["0","1","2","3","4","5"],
+    "outputs":["0","1"]
+    }
+*/
+   
+     
+     
+     
+     
+     
+     
+   
+    function toggleButton(ev){
+       console.log('toggle');
+       //alert('toggle');
+       var src = ev.target;
+       if($(src).hasClass('off')){
+           $(src).removeClass('off');
+           $(src).addClass('on');
+       }
+       else{
+           $(src).removeClass('on');
+           $(src).addClass('off');
+       }
+   }   
+   
+   $(document).ready(function(){
+        initUI();
+   });
+   
+   function initUI(){
+       $('.days').click(toggleButton);
+       $('.zones').click(toggleButton);
+       $('.clockpicker').clockpicker({
+            placement: 'bottom',
+            align: 'right',
+            //autoclose: true, 
+            donetext: 'Done'
+       });       
+   }
+    
+   
+</script>
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.days {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 11px;
+    
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+.mon,.wed{
+    padding: 8px 7px 8px 7px;
+}
+.thu{
+    padding: 8px 6px 8px 6px;
+}
+.tue,.fri, .sat, .sun{
+    padding: 8px 9px 8px 9px;
+}
+.right_align{
+    float: right;
+}
+
+.card_container {    
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2; 
+    border-width: 0px;
+    font-size: 15px;
+}
+.card_header{
+    background-color:#aaa;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+
+.zones {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px; 
+    margin: 5px 0px 5px 0px; 
+}
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+input[type=button] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+</style>
+
+
+</head>
+<body>
+    
+    
+<div ng-app="myApp" ng-controller="createScheduleController" class="card_container">
+<div class="button_group">
+    <input type="button" value="Create Schedule" ng-click="createSchedule()">            
+    <input type="button" value="View Schedules" ng-click="viewSchedules()">           
+    <input type="button" value="View Zones" ng-click="viewZones()">
+    <input type="button" value="Zone Status" ng-click="viewStatus()">
+</div>    
+     
+<h3 class="card_header">New Schedules</h3>
+<div class="card_body">
+  <!-- form action="/action_page.php" -->
+    <label for="scheduleName">Schedule Name</label>
+    <input type="text" id="scheduleName" name="scheduleName" placeholder="Schedule name.." ng-model="schedule.name">
+
+    <label for="startTime">Start Time</label>
+    <div class="input-group clockpicker">
+        <input type="text" class="form-control" ng-model="schedule.startTime" readonly>
+        <span class="input-group-addon">
+            <span class="glyphicon glyphicon-time"></span>
+        </span>
+    </div>
+    
+    
+    <label for="duration">Duration</label>
+    <input type="text" id="duration" name="duration" placeholder="Duration.." ng-model="schedule.duration">
+    
+   <div class="button_group">        
+        <botton class="days mon off">Mon</botton>
+        <botton class="days tue off">Tue</botton>
+        <botton class="days wed off">Wed</botton>
+        <botton class="days thu off">Thur</botton>
+        <botton class="days fri off">Fri</botton>
+        <botton class="days sat off">Sat</botton>
+        <botton class="days sun off">Sun</botton>
+    </div>
+    
+    <div style="margin-top:20px;">Zones</div>
+    <div>
+        <p class="zones off">{{zones[0].name}}</p>
+        <p class="zones off">{{zones[1].name}}</p>
+        <p class="zones off">{{zones[2].name}}</p>
+        <p class="zones off">{{zones[3].name}}</p>
+        <p class="zones off">{{zones[4].name}}</p>
+        <p class="zones off">{{zones[5].name}}</p>
+        <p class="zones off">{{zones[6].name}}</p>
+        <p class="zones off">{{zones[7].name}}</p>
+    </div> 
+      
+    <div class="button_group">
+        <input type="submit" value="Save" id="save_button" ng-click="saveSchedule()">
+        <input type="submit" class="right_align" value="Cancel">
+    </div>
+  <!-- /form -->
+</div>
+</div>
+</body>
+
+
+
+</html>
+
+<!--
+PUT
+{
+    "id":"1",
+    "name":"EveningXX",
+    "startTime":"7:15",
+    "duration":"5",
+    "days":[0,1,2,3,4,5],
+    "outputs":[0,1],
+    "daysStatus":[true,true,true,true,true,true,false],
+    "outputsStatus":[true,true,false,false,false,false,false,false]
+}
+-->

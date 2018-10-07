@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--
+<link rel="stylesheet" href="jquery-clockpicker.min.css"/>
+<link rel="stylesheet" href="icon.css">
+<script src="jquery.min.js"></script>
+<script src="jquery-clockpicker.min.js"></script>
+<script src="angular.min.js"></script>
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<link rel="stylesheet" href="css/jquery-clockpicker.min.css"/>
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-clockpicker.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script src="js/angular-cookies.js"></script>
+
+
+    <script>
+    var app = angular.module('myApp', ['ngCookies']);
+    app.controller('allSchedulesController', function($scope, $http, $cookies) {
+        //$scope.name = "John Doe";
+        
+        $scope.sessionCookie = $cookies.get("ESPSESSIONID");
+        //alert(sessionCookie);
+        
+        
+        var url = "/api/programs?"  + "ESPSESSIONID=" + $scope.sessionCookie;
+        
+        //console.log("Schedules: " + $scope.schedules)
+        $scope.translateDays = function (days){
+            var daysTranslated = "";
+            for(var i=0; i<days.length; i++){
+                if( i > 0 ){
+                    daysTranslated += ", ";
+                }
+                switch(days[i]){
+                    case "0": daysTranslated += "Sunday";
+                        break;
+                    case "1": daysTranslated += "Monday";
+                        break;
+                    case "2": daysTranslated += "Tuesday";
+                        break;
+                    case "3": daysTranslated += "Wednesday";
+                        break;
+                    case "4": daysTranslated += "Thursday";
+                        break;
+                    case "5": daysTranslated += "Friday";
+                        break;
+                    case "6": daysTranslated += "Saturday";
+                        break;
+                }
+            }
+            return daysTranslated;
+        } 
+        $scope.translateOutputs = function (outputs){
+            var outputsTranslated = "";
+            for(var i=0; i<outputs.length; i++){
+                if( i > 0 ){
+                    outputsTranslated += ", ";
+                }
+                outputsTranslated += $scope.zones[outputs[i]].name;                
+            }
+            return outputsTranslated;
+        }
+
+
+        //These are global should not be here ...
+        $scope.createZone = function (){
+            //alert("createZone");
+            window.location = "create_zone.html?zoneId=-1";
+        }
+        $scope.createSchedule = function (){
+            window.location = "create_schedule.html?scheduleId=-1";
+        }
+        $scope.viewSchedules = function (){
+            window.location = "all_schedules.html";
+        }
+        $scope.viewZones = function (){
+            window.location = "all_zones.html";
+        }
+        $scope.viewStatus = function (){
+            window.location = "status.html";
+        }
+
+
+        //these are specific to this page
+        $scope.editSchedule = function (id){
+            //alert('Editing ID: ' + id);
+            window.location = "create_schedule.html?scheduleId=" + id ;
+        }
+        
+        $scope.deleteSchedule = function (programId){
+            if( confirm('Delete ID: ' + programId + " ?")){
+                //window.location = "create_schedule.html?scheduleId=-1";
+                var path = "api/programs/" + programId + "?ESPSESSIONID=" + $scope.sessionCookie;
+                $http.delete(path,{"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+                .then(function(response) {
+                    $http.get(url)
+                    .then(function(response) {
+                        $scope.schedules = response.data;
+                    });
+                });
+            }
+        }
+        
+        //start by doing a get
+        $http.get("/api/zones" + "?ESPSESSIONID=" + $scope.sessionCookie,{"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+        .then(function(response) {
+            $scope.zones = response.data;
+    
+            $http.get(url,{"headers":{"ESPSESSIONID":$scope.sessionCookie}})
+            .then(function(response) {
+                $scope.schedules = response.data;
+                
+            });
+        });
+        
+    });
+</script>
+
+<script>
+    
+   function toggleButton(ev){
+       alert('toggle');
+       var src = ev.target;
+       if($(src).hasClass('off')){
+           $(src).removeClass('off');
+           $(src).addClass('on');
+       }
+       else{
+           $(src).removeClass('on');
+           $(src).addClass('off');
+       }
+   }
+   
+   $(document).ready(function(){
+       $('.schedules').click(toggleButton);       
+       
+        //get all programs
+       //$.get("http://192.168.1.38/api/programs", function(schedules, status){
+       //     //alert("schedules " + schedules + "\nStatus: " + status);
+       //});
+       
+       
+       
+   });
+</script>
+
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.schedules {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px; 
+    margin: 5px 0px 5px 0px; 
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+
+.info_card_container {    
+    border-style:solid;
+    border-radius:0px;
+    border-color:black;
+    background-color: #e2e2e2; 
+    border-width: 0px;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+.info_card_header{
+    background-color:green;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.info_card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+.info_card_section{
+    margin-bottom: 10px;
+}
+.info_card_section>.data{
+    color:blue;
+}
+.info_card_section>.bolded{
+    font-weight: bold;
+}
+p{
+   margin-top: 0px;  
+   margin-bottom: 0px;  
+}
+
+.info_card_footer{
+    background-color: #CCCCCC;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-bottom-color: gray;
+}
+label{
+    margin-bottom: 10px;
+}
+
+
+input[type=button] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+</style>
+
+
+
+
+</head>
+<body>
+
+    <div ng-app="myApp" ng-controller="allSchedulesController" class="info_card_container">
+
+           <div class="button_group">
+            <input type="button" value="Create Schedule" ng-click="createSchedule()">            
+            <input type="button" value="View Schedules" ng-click="viewSchedules()">           
+            <input type="button" value="View Zones" ng-click="viewZones()">
+            <input type="button" value="Zone Status" ng-click="viewStatus()">
+           </div>
+
+
+        <div ng-repeat="program in schedules.programs">
+            <h3 class="info_card_header">{{program.name}}</h3>
+            <div class="info_card_body">
+                <div class="info_card_section">
+                    <p class="bolded">Adjust For Humidity</p>
+                    <p>No</p>
+                </div>
+                <div class="info_card_section">
+                    <p class="bolded">Start Time</p>
+                    <p class="data">{{program.startTime}} ({{program.duration}} min)</p>
+                    <p class="bolded">Days</p>
+                    <p class="data">{{translateDays(program.days)}}</p>
+                    <p class="bolded">Zones</p>
+                    <p class="data">{{translateOutputs(program.outputs)}}</p>
+                </div>
+                <div class="info_card_section">
+                    <p class="bolded">Active</p>
+                    <p class="data">No</p>
+                </div>
+            </div>
+            <p class="info_card_footer">
+                <i class="material-icons" ng-click="deleteSchedule(program.id)">delete</i>
+                <i class="material-icons" ng-click="editSchedule(program.id)">mode edit</i>
+            </p>
+        </div>
+        
+        
+    </div>    
+    
+<!--<p>Some Google icons:</p>
+<i class="material-icons">cloud</i>
+<i class="material-icons">favorite</i>
+<i class="material-icons">attachment</i>
+<i class="material-icons">computer</i>
+<i class="material-icons">traffic</i>
+<br><br>
+
+<p>Styled Google icons (size, color, and shadow):</p>
+<i class="material-icons" style="font-size:24px;">cloud</i>
+<i class="material-icons" style="font-size:36px;">cloud</i>
+<i class="material-icons" style="font-size:48px;color:red;">cloud</i>
+<i class="material-icons" style="font-size:60px;color:lightblue;text-shadow:2px 2px 4px #000000;">cloud</i>-->
+
+
+
+</html>

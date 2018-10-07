@@ -1,0 +1,20 @@
+TESTING BY GILLLLL
+<style>
+    div{
+        font-size:20px;
+        border-size:1px;
+    }
+</style>
+<div onclick="alert('Hi')">
+    Click Me
+</div>
+
+<body>
+<input type="button" value="Show Dialog" onClick="showAndroidToast('This is Js Alert.')" />
+<script type="text/javascript">
+   function showAndroidToast(toast) {
+      var ans = Android.showToast(toast);
+      alert(ans);
+   }
+  </script>
+<body>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    
+   
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.days {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+.mon,.wed{
+    padding: 10px 9px 10px 9px;
+}
+.thu{
+    padding: 10px 8px 10px 8px;
+}
+.tue,.fri, .sat, .sun{
+    padding: 10px 11px 10px 11px;
+}
+.right_align{
+    float: right;
+}
+
+.card_container {    
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2; 
+    border-width: 0px;
+    font-size: 15px;
+}
+.card_header{
+    background-color:#aaa;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+
+.zones {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px; 
+    margin: 5px 0px 5px 0px; 
+}
+
+</style>
+
+
+</head>
+<body>
+    <script>
+        //var url = "http://192.168.1.20/api/wifi/";
+        var url = "/api/wifi/";
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var jsonText = xhttp.responseText;
+                var json = JSON.parse(jsonText);
+                //alert(jsonText);
+                //document.getElementById("demo").innerHTML = xhttp.responseText;
+                var wifiDevicesArray = json.wifiDevices;
+                var wifiPoint = document.getElementById("wifiPoint");
+                
+                for(var i=0; i<wifiDevicesArray.length; i++){
+                    //document.appendChild(wifiPoint);
+                    var copy = wifiPoint.cloneNode(true);
+                    document.getElementById("accessPoints").insertBefore(copy,wifiPoint);
+                }
+                wifiPoint.style.visibility = "hidden";
+                
+                var ssidTitles = document.getElementsByClassName("ssid");
+                var rssiTitles = document.getElementsByClassName("rssi");
+                var typeTitles = document.getElementsByClassName("wifiType");
+                var wifiRadios = document.getElementsByClassName("wifiRadio");
+                for(var i=0; i<wifiDevicesArray.length; i++){
+                    var ssid = wifiDevicesArray[i].ssid;
+                    var rssi = wifiDevicesArray[i].rssi;
+                    var encType = wifiDevicesArray[i].encType;
+                    ssidTitles[i].innerHTML = ssid;
+                    rssiTitles[i].innerHTML = rssi;
+                    typeTitles[i].innerHTML = encType;       
+                    wifiRadios[i].value = ssid;
+                }               
+                
+            }
+        };
+        xhttp.open("GET", url, true);
+        xhttp.send();
+        
+        function selectWifi(radio){
+            var selectedSsid = radio.value;
+            //alert(selectedSsid);
+            document.getElementById("ssid").innerHTML = selectedSsid;
+            document.getElementById("selectedSsid").value = selectedSsid; 
+        }
+        
+        function setSsid(){
+            var xhttp = new XMLHttpRequest();
+            url = "/api/wifi/";
+            xhttp.open("POST", url, true);
+            //Send the proper header information along with the request
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            xhttp.onreadystatechange = function() {//Call a function when the state changes.
+                if(xhttp.readyState == XMLHttpRequest.DONE && xhttp.status == 200) {
+                    // Request finished. Do processing here.
+                    //alert(xhttp.responseText);
+                }
+            }
+            var json = {};
+            json.wifiPassword = document.getElementById("wifiPassword").value;
+            json.ssid = document.getElementById("selectedSsid").value;
+            document.getElementById("wifiStatusDiv").innerHTML = "Attempting to connect...";
+            xhttp.send(JSON.stringify(json));
+        }
+        
+        function checkStatus (){
+            var xhttp = new XMLHttpRequest();
+            url = "/status";
+            xhttp.open("GET", url, true);
+            //Send the proper header information along with the request
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            xhttp.onreadystatechange = function() {//Call a function when the state changes.
+                if(xhttp.readyState == XMLHttpRequest.DONE && xhttp.status == 200) {
+                    //alert(xhttp.responseText);
+                    var jsonObj = JSON.parse(xhttp.responseText); 
+                    document.getElementById("wifiStatusDiv").innerHTML = jsonObj.wifiStatus;
+                }
+            }
+            xhttp.send();            
+            setTimeout(checkStatus, 1000);
+        }
+        
+        checkStatus();
+        
+    </script>
+    
+    
+<div>     
+    <h3 class="card_header">Wifi Access Points</h3>
+    <div id="accessPoints">    
+        <div id="wifiPoint">
+            <h3 class="info_card_header ssid"></h3> 
+            <input name="selectWifi" type="radio" id="selectWifi" class="wifiRadio" onclick="selectWifi(this)" value=""/>    
+            <div class="info_card_section">
+                <p><span style="font-weight: bold">RSSI: </span><span class="rssi"></span></p>
+                <p><span style="font-weight: bold">WifiType: </span><span class="wifiType"></span></p>
+            </div>
+            
+            <hr>
+        </div>
+    </div>
+    
+</div>
+<div>     
+    <span style="font-weight: bold">Selected SSID: </span> <span id="ssid"></span><br>
+    <input type="hidden" name="selectedSsid" id="selectedSsid" value="">
+    <span style="font-weight: bold">Password: </span><input type="password" name="wifiPassword" id="wifiPassword" >
+</div>
+<br><hr>
+ <div>     
+    <span style="font-weight: bold; font-size: 16px">WIFI Status: </span> <span id="ssid"></span>
+    <span id="wifiStatusDiv" style="font-size: 16px"></span><br>
+</div>
+<hr>
+<div class="card_body">    
+    <div class="button_group">
+        <input type="button" value="Save" onClick="setSsid()">
+        <input type="button" class="right_align" value="Cancel">
+    </div>
+</div>
+</body>
+
+
+
+</html>
+
+<!--
+    TODO:
+    There is no way to get a response for the attempt to connect to wifi
+    Therefor we keep calling a status page and when we get positive status we know
+    that we are connected to the wifi
+-->
