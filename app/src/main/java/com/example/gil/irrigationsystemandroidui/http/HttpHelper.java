@@ -48,8 +48,15 @@ public class HttpHelper {
         return response.toString();
     }
 
+
+    public String sendPut(String url, String data) throws Exception {
+        return send(url, data, "PUT");
+    }
+    public String sendPost(String url, String data) throws Exception {
+        return send(url, data, "POST");
+    }
     // HTTP POST request
-    public String sendPost(String url, String postData) throws Exception {
+    public String send(String url, String data, String method) throws Exception {
 
         StringBuffer response = new StringBuffer();
         URL obj = new URL(url);
@@ -58,7 +65,7 @@ public class HttpHelper {
         try {
 
             //add reuqest header
-            con.setRequestMethod("POST");
+            con.setRequestMethod(method);
             con.setRequestProperty("User-Agent", USER_AGENT);
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
@@ -67,13 +74,13 @@ public class HttpHelper {
             // Send post request
             con.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            wr.writeBytes(postData);
+            wr.writeBytes(data);
             wr.flush();
             wr.close();
 
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'POST' request to URL : " + url);
-            System.out.println("Post parameters : " + postData);
+            System.out.println("\nSending '" + method + "' request to URL : " + url);
+            System.out.println("Post parameters : " + data);
             System.out.println("Response Code : " + responseCode);
 
             BufferedReader in = new BufferedReader(

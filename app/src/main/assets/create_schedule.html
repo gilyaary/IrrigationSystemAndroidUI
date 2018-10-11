@@ -29,59 +29,58 @@
     };
     
     function getSchedule($scope,$http, scheduleId){
-        var url = host + "/api/programs/" + scheduleId + "?ESPSESSIONID=" + $scope.sessionCookie;
-        $http.get(url)
-        .then(function(response) {
-            $scope.schedule = response.data;
-            console.log($scope.schedule);
-            
-            for( var i = 0; i<$scope.schedule.days.length; i++){
-                var day = $scope.schedule.days[i];
-                var clazz = '';
-                switch(day){
-                    case "1":
-                        clazz = 'mon';
-                        break;
-                    case "2":
-                        clazz = 'tue';
-                        break;
-                    case "3":
-                        clazz = 'wed';
-                        break;
-                    case "4":
-                        clazz = 'thu';
-                        break;
-                    case "5":
-                        clazz = 'fri';
-                        break;
-                    case "6":
-                        clazz = 'sat';
-                        break;
-                    case "0":
-                        clazz = 'sun';
-                        break;
-                        
-                }
-                $('.' + clazz).removeClass('off');
-                $('.' + clazz).addClass('on');
-                
+
+        $scope.schedule = JSON.parse(Android.getSchedule(scheduleId));
+        //alert('got schedule');
+        console.log($scope.schedule);
+
+        for( var i = 0; i<$scope.schedule.days.length; i++){
+            var day = $scope.schedule.days[i];
+            var clazz = '';
+            switch(day){
+                case "1":
+                    clazz = 'mon';
+                    break;
+                case "2":
+                    clazz = 'tue';
+                    break;
+                case "3":
+                    clazz = 'wed';
+                    break;
+                case "4":
+                    clazz = 'thu';
+                    break;
+                case "5":
+                    clazz = 'fri';
+                    break;
+                case "6":
+                    clazz = 'sat';
+                    break;
+                case "0":
+                    clazz = 'sun';
+                    break;
+
             }
-            
-            //$scope.schedule.outputs.push("1");
-            //$scope.schedule.outputs.push("2");
-            
-            for( var i=0; i<8; i++){
-                $($('.zones')[i]).removeClass('on');
-                $($('.zones')[i]).addClass('off');
-            }
-            for( var i = 0; i<$scope.schedule.outputs.length; i++){
-                var zone = $scope.schedule.outputs[i];
-                var zoneIndex = parseInt(zone);
-                $($('.zones')[zoneIndex]).removeClass('off');
-                $($('.zones')[zoneIndex]).addClass('on');                
-            }
-            
-        });
+            $('.' + clazz).removeClass('off');
+            $('.' + clazz).addClass('on');
+
+        }
+
+        //$scope.schedule.outputs.push("1");
+        //$scope.schedule.outputs.push("2");
+
+        for( var i=0; i<8; i++){
+            $($('.zones')[i]).removeClass('on');
+            $($('.zones')[i]).addClass('off');
+        }
+        for( var i = 0; i<$scope.schedule.outputs.length; i++){
+            var zone = $scope.schedule.outputs[i];
+            var zoneIndex = parseInt(zone);
+            $($('.zones')[zoneIndex]).removeClass('off');
+            $($('.zones')[zoneIndex]).addClass('on');
+        }
+
+        //});
     }
    
    var app = angular.module('myApp', ['ngCookies']);
@@ -102,10 +101,7 @@
         $scope.sessionCookie = $cookies.get("ESPSESSIONID");
         
         
-        $http.get("/api/zones" + "?ESPSESSIONID=" + $scope.sessionCookie)
-        .then(function(response) {
-            $scope.zones = response.data;    
-        });
+        $scope.zones = JSON.parse(Android.getZones());
         
         
         //alert('HI');
@@ -169,16 +165,26 @@
         
         
             if(scheduleId == "-1"){
+                /*
                 $http.post(url2, $scope.schedule, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
                 .then(function (respose) {
                     window.location = "all_schedules.html";     
-                });                
+                });
+                */
+                Android.createSchedule(JSON.stringify($scope.schedule));
+                window.location = "all_schedules.html";
             }
             else{
+                /*
                 $http.put(url2, $scope.schedule, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
                 .then(function (respose) {
                     window.location = "all_schedules.html";   
-                }); 
+                });
+                */
+                ///api/programs/" + scheduleId;
+                Android.updateSchedule(scheduleId, JSON.stringify($scope.schedule));
+                window.location = "all_schedules.html";
+
             }
         }
         

@@ -27,38 +27,27 @@
         //$('.zones').click(toggleZoneStatus);
         $scope.sessionCookie = $cookies.get("ESPSESSIONID");
         
-        $http.get("/api/zones" + "?ESPSESSIONID=" + $scope.sessionCookie)
-        .then(function(response) {
-            $scope.zones = response.data;    
-        });
-        
-        
+        $scope.zones = JSON.parse(Android.getZones());
+        //alert('gotzones');
+
         var showZoneStatus = function(){
-            //alert("Calling show zone Status");
-            $http.get("status?ESPSESSIONID=" + $scope.sessionCookie)
-            .then(function(response) {
-                //$scope.schedules = response.data;
-                var zoneStatuses = response.data.outputs;
-                for(var i=0; i<zoneStatuses.length; i++){
-                    var zone = $(".zones")[i];
-                    if(zoneStatuses[i] == 1){
-                        $(zone).removeClass('off');
-                        $(zone).addClass('on');                        
-                    }  
-                    else{                        
-                        $(zone).removeClass('on');
-                        $(zone).addClass('off');
-                    }
+            var response = JSON.parse(Android.getStatus());
+            var zoneStatuses = response.outputs;
+            for(var i=0; i<zoneStatuses.length; i++){
+                var zone = $(".zones")[i];
+                if(zoneStatuses[i] == 1){
+                    $(zone).removeClass('off');
+                    $(zone).addClass('on');
                 }
-                $scope.wifiStatus = response.data.wifiStatus;
-                //alert(response.data[0]);
-            });
-            
-            $http.get("time"  + "?ESPSESSIONID=" + $scope.sessionCookie)
-            .then(function(response) {
-                 $scope.time=response.data;                  
-                 $timeout( showZoneStatus, 1000 );
-            });
+                else{
+                    $(zone).removeClass('on');
+                    $(zone).addClass('off');
+                }
+            }
+            $scope.wifiStatus = response.wifiStatus;
+            $scope.time = Android.getTime();
+            $timeout( showZoneStatus, 1000 );
+
             
         }
         showZoneStatus();
