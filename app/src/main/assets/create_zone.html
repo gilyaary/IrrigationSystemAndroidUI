@@ -167,25 +167,19 @@
                     window.location = "status.html";
                 }
                 $scope.saveZone = function () {
-                    //window.location = "create_zone.html?zoneId=" + zoneId;
-                    var url = "/api/zones"  + "?ESPSESSIONID=" + $scope.sessionCookie;                    
-                    $http.put(url, $scope.zones, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
-                    .then(function (respose) {
-                        window.location = "all_zones.html";   
-                    });
+                    var url = "/api/zones"  + "?ESPSESSIONID=" + $scope.sessionCookie;
+                    Android.updateZones(JSON.stringify($scope.zones));
+                    window.location = "all_zones.html";
                 }
                 
                 var zoneId = getUrlParameter('zoneId');
-                var url = "/api/zones"  + "?ESPSESSIONID=" + $scope.sessionCookie;
-                $http.get(url)
-                        .then(function (response) {
-                            $scope.zones = response.data;
-                            for(var i=0; i<$scope.zones.length; i++){
-                                if($scope.zones[i].id == zoneId){
-                                    $scope.zone = $scope.zones[i];
-                                }
-                            }
-                        });
+                $scope.zones = JSON.parse(Android.getZones());
+                for(var i=0; i<$scope.zones.length; i++){
+                    if($scope.zones[i].id == zoneId){
+                        $scope.zone = $scope.zones[i];
+                    }
+                }
+
             });
 
             $(document).ready(function () {

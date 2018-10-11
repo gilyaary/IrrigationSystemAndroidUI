@@ -181,12 +181,8 @@ input[type=button] {
         $scope.editZone = function (zoneId){
             window.location = "create_zone.html?zoneId=" + zoneId;
         }
-     
-        var url = "/api/zones"  + "?ESPSESSIONID=" + $scope.sessionCookie;
-         $http.get(url)
-         .then(function(response) {
-             $scope.zones = response.data;
-         });
+
+        $scope.zones = JSON.parse(Android.getZones());
     });
    
 </script>

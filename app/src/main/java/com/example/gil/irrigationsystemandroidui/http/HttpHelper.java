@@ -48,6 +48,42 @@ public class HttpHelper {
         return response.toString();
     }
 
+    // HTTP GET request
+    public String sendDelete(String url) throws Exception {
+
+        URL obj = new URL(url);
+        StringBuffer response = new StringBuffer();
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        try {
+            con.setRequestMethod("DELETE");
+
+            //add request header
+            con.setRequestProperty("User-Agent", USER_AGENT);
+
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'DELETE' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        } finally {
+            con.disconnect();
+        }
+        //print result
+        //System.out.println(response.toString());
+        return response.toString();
+    }
+
 
     public String sendPut(String url, String data) throws Exception {
         return send(url, data, "PUT");

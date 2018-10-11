@@ -82,4 +82,11 @@ public class GilJavaScriptInterface {
         String status = httpHelper.sendPut( PROTOCOL + HOST_IP + "/api/programs/" + scheduleId + "?" + SESSION_TOKEN, scheduleJsonString);
         //return status;
     }
+
+    @JavascriptInterface
+    public void updateZones(String zonesJsonString)throws Exception {
+        System.out.printf("     ^^Update Zones, JSON: %s%n", zonesJsonString);
+        String status = httpHelper.sendPut( PROTOCOL + HOST_IP + "/api/zones?" + SESSION_TOKEN, zonesJsonString);
+        //return status;
+    }
 }
