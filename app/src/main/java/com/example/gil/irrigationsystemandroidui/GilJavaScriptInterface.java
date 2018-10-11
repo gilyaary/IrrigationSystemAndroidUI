@@ -94,4 +94,11 @@ public class GilJavaScriptInterface {
         String status = httpHelper.sendPut( PROTOCOL + HOST_IP + "/api/zones?" + SESSION_TOKEN, zonesJsonString);
         //return status;
     }
+
+    @JavascriptInterface
+    public void changeZoneStatus(String zoneId, String updateJsonString)throws Exception {
+        System.out.printf("     ^^Update Zone Status, ID: %s, JSON: %s%n", zoneId, updateJsonString);
+        String status = httpHelper.sendPut( PROTOCOL + HOST_IP + "/api/programOverwrite/" + zoneId + "?" + SESSION_TOKEN, updateJsonString);
+        //return status;
+    }
 }

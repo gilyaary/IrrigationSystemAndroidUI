@@ -66,10 +66,7 @@
                     "active":1, 
                     "duration":5
                 };
-                $http.put(url + "?ESPSESSIONID=" + $scope.sessionCookie, zoneOverride, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
-                .then(function (respose) {
-                    //window.location = "all_zones.html";   
-                });
+                Android.changeZoneStatus(zoneId, JSON.stringify(zoneOverride));
             }
             else{
                 $(src).removeClass('on');
@@ -79,10 +76,7 @@
                     "active":0, 
                     "duration":5
                 };
-                $http.put(url + "?ESPSESSIONID=" + $scope.sessionCookie, zoneOverride, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
-                .then(function (respose) {
-                    //window.location = "all_zones.html";   
-                });
+                Android.changeZoneStatus(zoneId, JSON.stringify(zoneOverride));
             }
         }    
         
