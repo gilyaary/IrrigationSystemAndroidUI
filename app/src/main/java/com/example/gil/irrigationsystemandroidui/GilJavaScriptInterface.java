@@ -54,6 +54,11 @@ public class GilJavaScriptInterface {
         String schedule = httpHelper.sendGet( PROTOCOL + HOST_IP + "/api/programs/" + scheduleId + "?" + SESSION_TOKEN);
         return schedule;
     }
+    @JavascriptInterface
+    public String deleteSchedule(String scheduleId)throws Exception {
+        String schedule = httpHelper.sendDelete( PROTOCOL + HOST_IP + "/api/programs/" + scheduleId + "?" + SESSION_TOKEN);
+        return schedule;
+    }
 
     @JavascriptInterface
     public String getStatus()throws Exception {

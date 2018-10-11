@@ -101,15 +101,8 @@
         
         $scope.deleteSchedule = function (programId){
             if( confirm('Delete ID: ' + programId + " ?")){
-                //window.location = "create_schedule.html?scheduleId=-1";
-                var path = "api/programs/" + programId + "?ESPSESSIONID=" + $scope.sessionCookie;
-                $http.delete(path,{"headers":{"ESPSESSIONID":$scope.sessionCookie}})
-                .then(function(response) {
-                    $http.get(url)
-                    .then(function(response) {
-                        $scope.schedules = response.data;
-                    });
-                });
+                Android.deleteSchedule(programId);
+                $scope.schedules = JSON.parse(Android.getSchedules());
             }
         }
 
