@@ -118,10 +118,6 @@
             getSchedule($scope, $http, scheduleId);
         }
         
-        
-        
-        
-        
         $scope.saveSchedule = function(){
             //alert("saving schedule " + scheduleId);
             var url2 = host + "/api/programs/" + scheduleId; 
@@ -165,26 +161,12 @@
         
         
             if(scheduleId == "-1"){
-                /*
-                $http.post(url2, $scope.schedule, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
-                .then(function (respose) {
-                    window.location = "all_schedules.html";     
-                });
-                */
                 Android.createSchedule(JSON.stringify($scope.schedule));
                 window.location = "all_schedules.html";
             }
             else{
-                /*
-                $http.put(url2, $scope.schedule, {"headers":{"ESPSESSIONID":$scope.sessionCookie}})
-                .then(function (respose) {
-                    window.location = "all_schedules.html";   
-                });
-                */
-                ///api/programs/" + scheduleId;
                 Android.updateSchedule(scheduleId, JSON.stringify($scope.schedule));
                 window.location = "all_schedules.html";
-
             }
         }
         
@@ -201,12 +183,7 @@
     }
 */
    
-     
-     
-     
-     
-     
-     
+
    
     function toggleButton(ev){
        console.log('toggle');
