@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="css/jquery-clockpicker.min.css"/>
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-clockpicker.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script src="js/angular-cookies.js"></script>
+
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+input[type=number] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.schedules {
+    color: white;
+/*    border-style: solid;
+    border-width: 1px;*/
+    border-radius: 10px;
+    cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px; 
+    margin: 5px 0px 5px 0px; 
+}
+.off {
+    background-color: #CCCCCC;
+}
+.on {
+    background-color: #99101b;
+}
+
+
+.info_card_container {    
+    border-style:solid;
+    border-radius:0px;
+    border-color:black;
+    background-color: #e2e2e2; 
+    border-width: 0px;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+.info_card_header{
+    background-color:green;
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-top: 0px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    */
+}
+.info_card_body {
+    /*
+    border-style:solid;
+    border-radius:15px;
+    border-color:black;
+    background-color: #f2f2f2;
+    */
+    
+    padding: 20px;
+}
+.info_card_section{
+    margin-bottom: 10px;
+}
+.info_card_section>.data{
+    color:#ababab
+}
+.info_card_section>.bolded{
+    font-weight: bold
+}
+p{
+   margin-top: 0px;  
+   margin-bottom: 0px;  
+}
+
+.info_card_footer{
+    background-color: #CCCCCC;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-bottom-color: gray;
+}
+.button_group{
+    margin-top: 25px;
+}
+label{
+    margin-bottom: 10px;
+}
+input[type=button] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+</style>
+
+<script language="javascript">
+   function toggleButton(ev){
+       var src = ev.target;
+       if($(src).hasClass('off')){
+           $(src).removeClass('off');
+           $(src).addClass('on');
+       }
+       else{
+           $(src).removeClass('on');
+           $(src).addClass('off');
+       }
+   }
+   
+   $(document).ready(function(){
+       $('.zones').click(toggleButton);       
+   });
+      
+    var app = angular.module('myApp', ['ngCookies']);
+    app.controller('allZonesController', function($scope, $http, $cookies) {
+        $scope.sessionCookie = $cookies.get("ESPSESSIONID");
+        //These are global should not be here ...
+        $scope.createZone = function (){
+            //alert("createZone");
+            window.location = "create_zone.html?zoneId=-1";
+        }
+        $scope.createSchedule = function (){
+            window.location = "create_schedule.html?scheduleId=-1";
+        }
+        $scope.viewSchedules = function (){
+            window.location = "all_schedules.html";
+        }
+        $scope.viewZones = function (){
+            window.location = "all_zones.html";
+        }
+        $scope.viewStatus = function (){
+            window.location = "status.html";
+        }
+        $scope.editZone = function (zoneId){
+            window.location = "create_zone.html?zoneId=" + zoneId;
+        }
+
+        $scope.wifis = JSON.parse(Android.getWifis());
+    });
+   
+</script>
+</head>
+<body>
+ 
+<div ng-app="myApp" ng-controller="allZonesController" class="info_card_container">
+    <div ng-repeat="wifi in wifis">
+        <h3 class="info_card_header">{{zone.name}}</h3>
+        <div class="info_card_body">
+            <div class="info_card_section">
+                <p class="bolded">SSID</p>
+                <p class="data">{{wifi.ssid}}</p>
+            </div>            
+        </div>
+        <p class="info_card_footer">
+            <i class="material-icons" ng-click="editZone(zone.id)">mode edit</i>
+        </p>
+    </div>
+</div>
+</body>
+</html>

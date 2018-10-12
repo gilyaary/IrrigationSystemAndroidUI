@@ -3,6 +3,8 @@ package com.example.gil.irrigationsystemandroidui;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.webkit.JavascriptInterface;
 
@@ -10,12 +12,14 @@ import com.example.gil.irrigationsystemandroidui.http.HttpHelper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
 
 public class GilJavaScriptInterface {
 
+    private final Context applicationContext;
     private Context con;
     private static final String PROTOCOL = "http://";
     private static final String HOST_IP = "192.168.1.12";
@@ -24,6 +28,7 @@ public class GilJavaScriptInterface {
 
     public GilJavaScriptInterface(Context con) {
         this.con = con;
+        this.applicationContext = con.getApplicationContext();
     }
 
 
@@ -101,4 +106,25 @@ public class GilJavaScriptInterface {
         String status = httpHelper.sendPut( PROTOCOL + HOST_IP + "/api/programOverwrite/" + zoneId + "?" + SESSION_TOKEN, updateJsonString);
         //return status;
     }
+
+    @JavascriptInterface
+    public String getWifis(){
+        WifiManager wifiManager = (WifiManager) applicationContext.getSystemService(Context.WIFI_SERVICE);
+        List<ScanResult> apList = wifiManager.getScanResults();
+        StringBuffer json = new StringBuffer();
+        json.append("[");
+        for(int i=0; i<apList.size(); i++){
+            json.append("{");
+            String ssid = apList.get(i).SSID;
+            json.append(createAttribute("ssid", ssid));
+            json.append("},");
+        }
+        json.append("]");
+        return json.toString();
+    }
+
+    public String createAttribute(String key, String value){
+        return "\"" + key + "\":" + "\"" + value + "\"";
+    }
+    
 }
